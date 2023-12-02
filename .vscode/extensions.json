@@ -1,0 +1,8 @@
+// https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions
+{
+  "recommendations": [
+    "ms-vscode.cmake-tools",
+    "yzhang.markdown-all-in-one",
+    "gruntfuggly.todo-tree"
+  ]
+}

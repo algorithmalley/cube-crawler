@@ -1,0 +1,4 @@
+build/
+ev3dev-lang-cpp/
+**/*.log
+.DS_Store

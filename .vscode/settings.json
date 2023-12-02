@@ -1,0 +1,61 @@
+// https://code.visualstudio.com/docs/getstarted/settings
+{
+  // Ruler colors
+  "workbench.colorCustomizations": {
+    "editorRuler.foreground": "#43adf3"
+  },
+  // Filter explorer view in vscode
+  "files.exclude": {
+    "**/build": true,
+    ".vscode": false,
+    ".gitignore": true,
+    ".gitattributes": true,
+    ".gitmodules": true
+  },
+  // Make sure these files associate with custom formatting
+  "files.associations": {
+    "*.clang-tidy": "clangcfg",
+    "*.clang-format": "clangcfg",
+    "*.json": "jsonc"
+  },
+  // Default editor settings, not particular to any language
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.formatOnSave": true,
+  // Markdown specific editor settings
+  "[markdown]": {
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wrappingIndent": "same",
+    "editor.wordWrapColumn": 80,
+    "editor.rulers": [
+      80
+    ]
+  },
+  // Clang config files specific editor settings
+  "[clangcfg]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+  // C++ specific editor settings
+  "[cpp]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.rulers": [
+      120
+    ]
+  },
+  // CMake settings
+  "[cmake]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.rulers": [
+      80
+    ]
+  },
+  "cmake.configureOnOpen": false,
+  "cmake.useCMakePresets": "never"
+}
