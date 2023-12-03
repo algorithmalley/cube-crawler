@@ -2,3 +2,4 @@
 	path = external/ev3dev-lang-cpp
 	url = https://github.com/ddemidov/ev3dev-lang-cpp.git
 	branch = master
+	ignore = dirty
