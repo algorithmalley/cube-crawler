@@ -1,3 +1,4 @@
-[submodule "ev3dev-lang-cpp"]
-	path = ev3dev-lang-cpp
+[submodule "external/ev3dev-lang-cpp"]
+	path = external/ev3dev-lang-cpp
 	url = https://github.com/ddemidov/ev3dev-lang-cpp.git
+	branch = master
