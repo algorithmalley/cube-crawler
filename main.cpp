@@ -1,11 +1,11 @@
 
-#include "cube.hpp"
+#include "rubiks.hpp"
 #include "device.hpp"
 #include "solver.hpp"
 
 int main()
 {
-    Cube cube;
+    Rubiks cube;
     Device crawler;
     Solver solver;
     return 0;

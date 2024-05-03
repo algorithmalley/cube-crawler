@@ -8,7 +8,7 @@ set_target_properties(ev3dev PROPERTIES
   IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/ev3dev-lang-cpp/build/libev3dev.a)
 
 # The default target
-add_executable(cube-crawler main.cpp cube.cpp solver.cpp device.cpp)
+add_executable(cube-crawler main.cpp rubiks.cpp solver.cpp device.cpp)
 target_link_libraries(cube-crawler ev3dev pthread)
 target_include_directories(cube-crawler 
   PRIVATE "${CMAKE_SOURCE_DIR}/external/ev3dev-lang-cpp")

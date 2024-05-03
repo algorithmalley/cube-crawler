@@ -1,6 +1,6 @@
 #pragma once
 
-class Cube
+class Rubiks
 {
 public:
     enum Face

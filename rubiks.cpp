@@ -1,7 +1,7 @@
-#include "cube.hpp"
+#include "rubiks.hpp"
 #include <cassert>
 
-void Cube::turn(Face face, int n)
+void Rubiks::turn(Face face, int n)
 {
     assert(n == 0 && "error: n=0 has no effect");
 
