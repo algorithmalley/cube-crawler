@@ -1,15 +1,12 @@
 
-#include "ev3dev.h"
-
-#include <iostream>
-#include <thread>
-#include <string.h>
-#include <errno.h>
-
-using namespace std;
-using namespace ev3dev;
+#include "cube.hpp"
+#include "device.hpp"
+#include "solver.hpp"
 
 int main()
 {
-  return 0;
+    Cube cube;
+    Device crawler;
+    Solver solver;
+    return 0;
 }
