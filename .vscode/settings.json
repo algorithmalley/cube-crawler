@@ -8,6 +8,7 @@
   "files.exclude": {
     "**/build": true,
     ".vscode": false,
+    ".clang-format": false,
     ".gitignore": true,
     ".gitattributes": true,
     ".gitmodules": true
