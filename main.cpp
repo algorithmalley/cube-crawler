@@ -44,6 +44,7 @@ int main()
             cout << "yellow at face " << kvp.first << " and cell " << kvp.second << "\n";
         }
 
+        Rubiks test("fdafds");
         /*
                 cout << "scrambling cube...\n";
                 worker.scramble(cube);

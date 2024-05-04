@@ -67,7 +67,12 @@ Rubiks::Rubiks()
              string(9, {WHITE}))
 {}
 
-Rubiks::Rubiks(string const &lrbfdu) : _state(lrbfdu) {}
+Rubiks::Rubiks(string const &lrbfdu) : _state(lrbfdu)
+{
+    if (!valid()) {
+        throw std::invalid_argument("lrbfdu: invalid Rubik's Cube representation");
+    }
+}
 
 bool Rubiks::valid() const
 {
