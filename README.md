@@ -31,8 +31,7 @@ With the ev3dev-lang-cpp in place, we run:
 mkdir build
 docker run --rm -it -v .:/src -w /src ev3cc
 cd build
-export CXX=/usr/bin/arm-linux-gnueabi-g++
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release 
 make
 cd ..
 exit
@@ -44,4 +43,3 @@ Put the executable on the ev3:
 ```
 scp build/cube-crawler robot@ev3dev:~
 ```
-

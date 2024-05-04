@@ -2,7 +2,7 @@
 
 class Device
 {
-public:
+  public:
     void flip_cube();
     void turn_cube();
 };
