@@ -36,6 +36,14 @@ int main()
         cout << "cube status: " << (cube.valid() ? "valid" : "invalid") << "\n";
         cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
 
+        cout << "left center: " << (char)cube.color(Rubiks::LEFT, Rubiks::CC) << "\n";
+        cout << "right center: " << (char)cube.color(Rubiks::RIGHT, Rubiks::CC) << "\n";
+
+        auto all_yellow = cube.find_color(Rubiks::YELLOW);
+        for (auto kvp : all_yellow) {
+            cout << "yellow at face " << kvp.first << " and cell " << kvp.second << "\n";
+        }
+
         /*
                 cout << "scrambling cube...\n";
                 worker.scramble(cube);

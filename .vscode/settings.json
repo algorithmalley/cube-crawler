@@ -8,7 +8,7 @@
   "files.exclude": {
     "**/build": true,
     ".vscode": false,
-    ".clang-format": false,
+    ".clang-format": true,
     ".gitignore": true,
     ".gitattributes": true,
     ".gitmodules": true
@@ -17,7 +17,8 @@
   "files.associations": {
     "*.clang-tidy": "clangcfg",
     "*.clang-format": "clangcfg",
-    "*.json": "jsonc"
+    "*.json": "jsonc",
+    "vector": "cpp"
   },
   // Default editor settings, not particular to any language
   "editor.detectIndentation": false,

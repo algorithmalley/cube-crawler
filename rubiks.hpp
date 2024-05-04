@@ -2,13 +2,14 @@
 
 #include <iosfwd>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Rubiks
 {
   public:
     enum Face : int { LEFT = 0, RIGHT = 9, BACK = 18, FRONT = 27, DOWN = 36, UP = 45 };
-    enum Bearing : int { NW = 0, N = 1, NE = 2, W = 3, CC = 4, E = 5, SW = 6, S = 7, SE = 8 };
+    enum Cell : int { NW = 0, N = 1, NE = 2, W = 3, CC = 4, E = 5, SW = 6, S = 7, SE = 8 };
     enum Color : char { RED = 'r', ORANGE = 'o', GREEN = 'g', BLUE = 'b', YELLOW = 'y', WHITE = 'w' };
 
     explicit Rubiks();
@@ -16,6 +17,9 @@ class Rubiks
 
     bool valid() const;
     bool solved() const;
+
+    auto color(Face face, Cell cell) const -> Color;
+    auto find_color(Color color) const -> std::vector<std::pair<Face, Cell>>;
 
     void turn(Face face, int n);
 
@@ -40,3 +44,5 @@ class Rubiks
 };
 
 std::ostream &operator<<(std::ostream &os, Rubiks &cube);
+
+inline Rubiks::Color Rubiks::color(Face face, Cell cell) const { return (Color)_state[face + cell]; }
