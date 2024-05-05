@@ -1,5 +1,6 @@
 #include "rubiks.hpp"
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -69,7 +70,8 @@ Rubiks::Rubiks()
 
 Rubiks::Rubiks(string const &lrbfdu) : _state(lrbfdu)
 {
-    if (!valid()) {
+    if (!valid())
+    {
         throw std::invalid_argument("lrbfdu: invalid Rubik's Cube representation");
     }
 }
@@ -88,11 +90,26 @@ bool Rubiks::solved() const
            check_single_color(string(_state, DOWN, 9)) && check_single_color(string(_state, UP, 9));
 }
 
+double Rubiks::entropy() const
+{
+    double entropy = 1.0;
+    entropy *= count_distinct_colors(string(_state, LEFT, 9));
+    entropy *= count_distinct_colors(string(_state, RIGHT, 9));
+    entropy *= count_distinct_colors(string(_state, BACK, 9));
+    entropy *= count_distinct_colors(string(_state, FRONT, 9));
+    entropy *= count_distinct_colors(string(_state, DOWN, 9));
+    entropy *= count_distinct_colors(string(_state, UP, 9));
+    entropy -= 1.0;
+    entropy /= pow(6, 6);
+    return entropy;
+}
+
 vector<pair<Rubiks::Face, Rubiks::Cell>> Rubiks::find_color(Color color) const
 {
     vector<pair<Rubiks::Face, Rubiks::Cell>> result;
     size_t pos = _state.find(color, 0);
-    while (pos != string::npos) {
+    while (pos != string::npos)
+    {
         Face face = (Face)((pos / 9) * 9);
         Cell cell = (Cell)(pos % 9);
         result.push_back(make_pair(face, cell));
@@ -109,7 +126,8 @@ void Rubiks::turn(Face face, int n)
     n = n < 0 ? n + 4 : n; // express as CW rotation
 
     vector<int> const *p = nullptr;
-    switch (face) {
+    switch (face)
+    {
     case LEFT:
         p = &_lcw;
         break;
@@ -130,7 +148,8 @@ void Rubiks::turn(Face face, int n)
         break;
     }
 
-    while (n-- > 0) {
+    while (n-- > 0)
+    {
         run_permutation(*p);
     }
 }
@@ -139,9 +158,32 @@ void Rubiks::run_permutation(vector<int> const &permutation)
 {
     assert(permutation.size() == _state.length() && "error: permutation and state must be of equal size");
     string copy = _state;
-    for (size_t i = 0; i < _state.length(); ++i) {
+    for (size_t i = 0; i < _state.length(); ++i)
+    {
         _state[permutation[i]] = copy[i];
     }
+}
+
+int Rubiks::count_distinct_colors(string const &part) const
+{
+    int rcount = 0;
+    int ocount = 0;
+    int gcount = 0;
+    int bcount = 0;
+    int ycount = 0;
+    int wcount = 0;
+
+    for (int i = 0; i < part.length(); i++)
+    {
+        rcount += part[i] == RED;
+        ocount += part[i] == ORANGE;
+        gcount += part[i] == GREEN;
+        bcount += part[i] == BLUE;
+        ycount += part[i] == YELLOW;
+        wcount += part[i] == WHITE;
+    }
+
+    return (rcount > 0) + (ocount > 0) + (gcount > 0) + (bcount > 0) + (ycount > 0) + (wcount > 0);
 }
 
 bool Rubiks::check_multi_color(string const &part, int n) const
@@ -153,7 +195,8 @@ bool Rubiks::check_multi_color(string const &part, int n) const
     int ycount = 0;
     int wcount = 0;
 
-    for (int i = 0; i < part.length(); i++) {
+    for (int i = 0; i < part.length(); i++)
+    {
         rcount += part[i] == RED;
         ocount += part[i] == ORANGE;
         gcount += part[i] == GREEN;
@@ -179,8 +222,10 @@ ostream &operator<<(ostream &os, Rubiks &cube)
     os << "--- --- --- --- --- ---\n";
     os << " l   r   b   f   d   u \n";
     os << "--- --- --- --- --- ---\n";
-    for (size_t j = 0; j < 9; j += 3) {
-        for (size_t i = j; i < cube._state.length(); i += 9) {
+    for (size_t j = 0; j < 9; j += 3)
+    {
+        for (size_t i = j; i < cube._state.length(); i += 9)
+        {
             os << string(cube._state, i, 3) << " ";
         }
         os << "\n";

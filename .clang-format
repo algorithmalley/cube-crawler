@@ -12,4 +12,5 @@ BraceWrapping:
   SplitEmptyFunction: false
   AfterClass: true
   AfterFunction: true
+  AfterControlStatement: Always
 ...

@@ -50,6 +50,9 @@ class Rubiks
     // Returns true iff instance represents a cube that has all colors in the right places
     bool solved() const;
 
+    // Calculates a measure for how scrambled the cube is. 0 is solved.
+    auto entropy() const -> double;
+
     // Gets the color at a specific face + cell
     auto color(Face face, Cell cell) const -> Color;
 
@@ -66,6 +69,7 @@ class Rubiks
   private:
     friend std::ostream &operator<<(std::ostream &os, Rubiks &cube);
 
+    int count_distinct_colors(std::string const &part) const;
     bool check_multi_color(std::string const &part, int n) const;
     bool check_single_color(std::string const &part) const;
 

@@ -1,17 +1,13 @@
 #pragma once
 
+#include "solver.hpp"
+#include <vector>
+
 class Rubiks;
 class Device;
 
-class Worker
-{
-  public:
-    // Scan and init cube as it is on the device
-    void scan(Rubiks &cube, Device &crawler);
+// Scan and init cube as it is on the device
+void scan(Rubiks &cube, Device &crawler);
 
-    // Solve cube, optionally physically on the crawler too
-    void solve(Rubiks &cube, Device *crawler = nullptr);
-
-    // Scamble cube, optionally physically on the crawler too
-    void scramble(Rubiks &cube, Device *crawler = nullptr);
-};
+// Apply the given steps to the cube on the device
+void run(std::vector<Solver::step> const &steps, Device &crawler);
