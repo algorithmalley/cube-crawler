@@ -7,7 +7,7 @@ using namespace std;
 
 // clang-format off
 
-vector<int> Rubiks::_lcw = {
+vector<int> Rubiks::_tlcw = {
     /* l */ LEFT + NE, LEFT + E, LEFT + SE, LEFT + N, LEFT + CC, LEFT + S, LEFT + NW, LEFT + W, LEFT + SW,
     /* r */ RIGHT + NW, RIGHT + N, RIGHT + NE, RIGHT + W, RIGHT + CC, RIGHT + E, RIGHT + SW, RIGHT + S, RIGHT + SE,
     /* b */ BACK + NW, BACK + N, UP + SW, BACK + W, BACK + CC, UP + W, BACK + SW, BACK + S, UP + NW,
@@ -16,7 +16,7 @@ vector<int> Rubiks::_lcw = {
     /* u */ FRONT + NW, UP + N, UP + NE, FRONT + W, UP + CC, UP + E, FRONT + SW, UP + S, UP + SE
 };
 
-vector<int> Rubiks::_rcw = {
+vector<int> Rubiks::_trcw = {
     /* l */ LEFT + NW, LEFT + N, LEFT + NE, LEFT + W, LEFT + CC, LEFT + E, LEFT + SW, LEFT + S, LEFT + SE,
     /* r */ RIGHT + NE, RIGHT + E, RIGHT + SE, RIGHT + N, RIGHT + CC, RIGHT + S, RIGHT + NW, RIGHT + W, RIGHT + SW,
     /* b */ DOWN + SE, BACK + N, BACK + NE, DOWN + E, BACK + CC, BACK + E, DOWN + NE, BACK + S, BACK + SE,
@@ -25,7 +25,7 @@ vector<int> Rubiks::_rcw = {
     /* u */ UP + NW, UP + N, BACK + SW, UP + W, UP + CC, BACK + W, UP + SW, UP + S, BACK + NW
 };
 
-vector<int> Rubiks::_bcw = {
+vector<int> Rubiks::_tbcw = {
     /* l */ DOWN + SW, LEFT + N, LEFT + NE, DOWN + S, LEFT + CC, LEFT + E, DOWN + SE, LEFT + S, LEFT + SE,
     /* r */ RIGHT + NW, RIGHT + N, UP + NW, RIGHT + W, RIGHT + CC, UP + N, RIGHT + SW, RIGHT + S, UP + NE,
     /* b */ BACK + NE, BACK + E, BACK + SE, BACK + N, BACK + CC, BACK + S, BACK + NW, BACK + W, BACK + SW,
@@ -34,7 +34,7 @@ vector<int> Rubiks::_bcw = {
     /* u */ LEFT + SW, LEFT + W, LEFT + NW, UP + W, UP + CC, UP + E, UP + SW, UP + S, UP + SE
 };
 
- vector<int> Rubiks::_fcw = {
+ vector<int> Rubiks::_tfcw = {
     /* l */ LEFT + NW, LEFT + N, UP + SE, LEFT + W, LEFT + CC, UP + S, LEFT + SW, LEFT + S, UP + SW,
     /* r */ DOWN + NE, RIGHT + N, RIGHT + NE, DOWN + N, RIGHT + CC, RIGHT + E, DOWN + NW, RIGHT + S, RIGHT + SE,
     /* b */ BACK + NW, BACK + N, BACK + NE, BACK + W, BACK + CC, BACK + E, BACK + SW, BACK + S, BACK + SE,
@@ -43,7 +43,7 @@ vector<int> Rubiks::_bcw = {
     /* u */ UP + NW, UP + N, UP + NE, UP + W, UP + CC, UP + E, RIGHT + NW, RIGHT + W, RIGHT + SW
 };
 
- vector<int> Rubiks::_dcw = {
+ vector<int> Rubiks::_tdcw = {
     /* l */ LEFT + NW, LEFT + N, LEFT + NE, LEFT + W, LEFT + CC, LEFT + E, FRONT + SW, FRONT + S, FRONT + SE,
     /* r */ RIGHT + NW, RIGHT + N, RIGHT + NE, RIGHT + W, RIGHT + CC, RIGHT + E, BACK + SW, BACK + S, BACK + SE,
     /* b */ BACK + NW, BACK + N, BACK + NE, BACK + W, BACK + CC, BACK + E, LEFT + SW, LEFT + S, LEFT + SE,
@@ -52,12 +52,66 @@ vector<int> Rubiks::_bcw = {
     /* u */ UP + NW, UP + N, UP + NE, UP + W, UP + CC, UP + E, UP + SW, UP + S, UP + SE
 };
 
- vector<int> Rubiks::_ucw = {
+ vector<int> Rubiks::_tucw = {
     /* l */ BACK + NW, BACK + N, BACK + NE, LEFT + W, LEFT + CC, LEFT + E, LEFT + SW, LEFT + S, LEFT + SE,
     /* r */ FRONT + NW, FRONT + N, FRONT + NE, RIGHT + W, RIGHT + CC, RIGHT + E, RIGHT + SW, RIGHT + S, RIGHT + SE,
     /* b */ RIGHT + NW, RIGHT + N, RIGHT + NE, BACK + W, BACK + CC, BACK + E, BACK + SW, BACK + S, BACK + SE,
     /* f */ LEFT + NW, LEFT + N, LEFT + NE, FRONT + W, FRONT + CC, FRONT + E, FRONT + SW, FRONT + S, FRONT + SE,
     /* d */ DOWN + NW, DOWN + N, DOWN + NE, DOWN + W, DOWN + CC, DOWN + E, DOWN + SW, DOWN + S, DOWN + SE,
+    /* u */ UP + NE, UP + E, UP + SE, UP + N, UP + CC, UP + S, UP + NW, UP + W, UP + SW
+};
+
+vector<int> Rubiks::_rlcw = {
+    /* l */ LEFT + NE, LEFT + E, LEFT + SE, LEFT + N, LEFT + CC, LEFT + S, LEFT + NW, LEFT + W, LEFT + SW,
+    /* r */ RIGHT + SW, RIGHT + W, RIGHT + NW, RIGHT + S, RIGHT + CC, RIGHT + N, RIGHT + SE, RIGHT + E, RIGHT + NE,
+    /* b */ UP + SE, UP + S, UP + SW, UP + E, UP + CC, UP + W, UP + NE, UP + N, UP + NW,
+    /* f */ DOWN + NW, DOWN + N, DOWN + NE, DOWN + W, DOWN + CC, DOWN + E, DOWN + SW, DOWN + S, DOWN + SE,
+    /* d */ BACK + SE, BACK + S, BACK + SW, BACK + E, BACK + CC, BACK + W, BACK + NE, BACK + N, BACK + NW,
+    /* u */ FRONT + NW, FRONT + N, FRONT + NE, FRONT + W, FRONT + CC, FRONT + E, FRONT + SW, FRONT + S, FRONT + SE
+};
+
+vector<int> Rubiks::_rrcw = {
+    /* l */ LEFT + SW, LEFT + W, LEFT + NW, LEFT + S, LEFT + CC, LEFT + N, LEFT + SE, LEFT + E, LEFT + NE,
+    /* r */ RIGHT + NE, RIGHT + E, RIGHT + SE, RIGHT + N, RIGHT + CC, RIGHT + S, RIGHT + NW, RIGHT + W, RIGHT + SW,
+    /* b */ DOWN + SE, DOWN + S, DOWN + SW, DOWN + E, DOWN + CC, DOWN + W, DOWN + NE, DOWN + N, DOWN + NW,
+    /* f */ UP + NW, UP + N, UP + NE, UP + W, UP + CC, UP + E, UP + SW, UP + S, UP + SE,
+    /* d */ FRONT + NW, FRONT + N, FRONT + NE, FRONT + W, FRONT + CC, FRONT + E, FRONT + SW, FRONT + S, FRONT + SE,
+    /* u */ BACK + SE, BACK + S, BACK + SW, BACK + E, BACK + CC, BACK + W, BACK + NE, BACK + N, BACK + NW
+};
+
+vector<int> Rubiks::_rbcw = {
+    /* l */ DOWN + SW, DOWN + W, DOWN + NW, DOWN + S, DOWN + CC, DOWN + N, DOWN + SE, DOWN + E, DOWN + NE,
+    /* r */ UP + SW, UP + W, UP + NW, UP + S, UP + CC, UP + N, UP + SE, UP + E, UP + NE,
+    /* b */ BACK + NE, BACK + E, BACK + SE, BACK + N, BACK + CC, BACK + S, BACK + NW, BACK + W, BACK + SW,
+    /* f */ FRONT + SW, FRONT + W, FRONT + NW, FRONT + S, FRONT + CC, FRONT + N, FRONT + SE, FRONT + E, FRONT + NE,
+    /* d */ RIGHT + SW, RIGHT + W, RIGHT + NW, RIGHT + S, RIGHT + CC, RIGHT + N, RIGHT + SE, RIGHT + E, RIGHT + NE,
+    /* u */ LEFT + SW, LEFT + W, LEFT + NW, LEFT + S, LEFT + CC, LEFT + N, LEFT + SE, LEFT + E, LEFT + NE
+};
+
+vector<int> Rubiks::_rfcw = {
+    /* l */ UP + NE, UP + E, UP + SE, UP + N, UP + CC, UP + S, UP + NW, UP + W, UP + SW,
+    /* r */ DOWN + NE, DOWN + E, DOWN + SE, DOWN + N, DOWN + CC, DOWN + S, DOWN + NW, DOWN + W, DOWN + SW,
+    /* b */ BACK + SW, BACK + W, BACK + NW, BACK + S, BACK + CC, BACK + N, BACK + SE, BACK + E, BACK + NE,
+    /* f */ FRONT + NE, FRONT + E, FRONT + SE, FRONT + N, FRONT + CC, FRONT + S, FRONT + NW, FRONT + W, FRONT + SW,
+    /* d */ LEFT + NE, LEFT + E, LEFT + SE, LEFT + N, LEFT + CC, LEFT + S, LEFT + NW, LEFT + W, LEFT + SW,
+    /* u */ RIGHT + NE, RIGHT + E, RIGHT + SE, RIGHT + N, RIGHT + CC, RIGHT + S, RIGHT + NW, RIGHT + W, RIGHT + SW,
+};
+
+vector<int> Rubiks::_rdcw = {
+    /* l */ FRONT + NW, FRONT + N, FRONT + NE, FRONT + W, FRONT + CC, FRONT + E, FRONT + SW, FRONT + S, FRONT + SE,
+    /* r */ BACK + NW, BACK + N, BACK + NE, BACK + W, BACK + CC, BACK + E, BACK + SW, BACK + S, BACK + SE,
+    /* b */ LEFT + NW, LEFT + N, LEFT + NE, LEFT + W, LEFT + CC, LEFT + E, LEFT + SW, LEFT + S, LEFT + SE,
+    /* f */ RIGHT + NW, RIGHT + N, RIGHT + NE, RIGHT + W, RIGHT + CC, RIGHT + E, RIGHT + SW, RIGHT + S, RIGHT + SE,
+    /* d */ DOWN + NE, DOWN + E, DOWN + SE, DOWN + N, DOWN + CC, DOWN + S, DOWN + NW, DOWN + W, DOWN + SW,
+    /* u */ UP + SW, UP + W, UP + NW, UP + S, UP + CC, UP + N, UP + SE, UP + E, UP + NE
+};
+
+vector<int> Rubiks::_rucw = {
+    /* l */ BACK + NW, BACK + N, BACK + NE, BACK + W, BACK + CC, BACK + E, BACK + SW, BACK + S, BACK + SE,
+    /* r */ FRONT + NW, FRONT + N, FRONT + NE, FRONT + W, FRONT + CC, FRONT + E, FRONT + SW, FRONT + S, FRONT + SE,
+    /* b */ RIGHT + NW, RIGHT + N, RIGHT + NE, RIGHT + W, RIGHT + CC, RIGHT + E, RIGHT + SW, RIGHT + S, RIGHT + SE,
+    /* f */ LEFT + NW, LEFT + N, LEFT + NE, LEFT + W, LEFT + CC, LEFT + E, LEFT + SW, LEFT + S, LEFT + SE,
+    /* d */ DOWN + SW, DOWN + W, DOWN + NW, DOWN + S, DOWN + CC, DOWN + N, DOWN + SE, DOWN + E, DOWN + NE,
     /* u */ UP + NE, UP + E, UP + SE, UP + N, UP + CC, UP + S, UP + NW, UP + W, UP + SW
 };
 
@@ -122,29 +176,65 @@ void Rubiks::turn(Face face, int n)
 {
     assert(n % 4 != 0 && "error: n == 0 (mod 4) has no effect");
 
-    n = n % 4;             // 4 rotations is identity
+    n = n % 4;             // 4 turns is identity
     n = n < 0 ? n + 4 : n; // express as CW rotation
 
     vector<int> const *p = nullptr;
     switch (face)
     {
     case LEFT:
-        p = &_lcw;
+        p = &_tlcw;
         break;
     case RIGHT:
-        p = &_rcw;
+        p = &_trcw;
         break;
     case BACK:
-        p = &_bcw;
+        p = &_tbcw;
         break;
     case FRONT:
-        p = &_fcw;
+        p = &_tfcw;
         break;
     case DOWN:
-        p = &_dcw;
+        p = &_tdcw;
         break;
     case UP:
-        p = &_ucw;
+        p = &_tucw;
+        break;
+    }
+
+    while (n-- > 0)
+    {
+        run_permutation(*p);
+    }
+}
+
+void Rubiks::rotate(Face axis, int n)
+{
+    assert(n % 4 != 0 && "error: n == 0 (mod 4) has no effect");
+
+    n = n % 4;             // 4 rotations is identity
+    n = n < 0 ? n + 4 : n; // express as CW rotation
+
+    vector<int> const *p = nullptr;
+    switch (axis)
+    {
+    case LEFT:
+        p = &_rlcw;
+        break;
+    case RIGHT:
+        p = &_rrcw;
+        break;
+    case BACK:
+        p = &_rbcw;
+        break;
+    case FRONT:
+        p = &_rfcw;
+        break;
+    case DOWN:
+        p = &_rdcw;
+        break;
+    case UP:
+        p = &_rucw;
         break;
     }
 

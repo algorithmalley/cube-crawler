@@ -27,13 +27,18 @@ int main()
         cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
         cout << "cube entropy: " << cube.entropy() << " (" << steps.size() << " steps)\n";
 
-        cout << "solving cube...\n";
-        solver->solve(cube);
+        cout << "rotating cube CW at up...\n";
+        cube.rotate(Rubiks::UP, 1);
         cout << cube;
-        cout << "cube status: " << (cube.valid() ? "valid" : "invalid") << "\n";
-        cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
-        cout << "cube entropy: " << cube.entropy() << "\n";
 
+        /*
+                cout << "solving cube...\n";
+                solver->solve(cube);
+                cout << cube;
+                cout << "cube status: " << (cube.valid() ? "valid" : "invalid") << "\n";
+                cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
+                cout << "cube entropy: " << cube.entropy() << "\n";
+        */
         return 0;
     } catch (exception const &e)
     {

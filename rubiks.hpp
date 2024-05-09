@@ -63,8 +63,11 @@ class Rubiks
         Commands:
     */
 
-    // Turn the cube 1, 2 or 3 times CW (n>1) or CCW (n<1)
+    // Turn a single face 1, 2 or 3 times CW (n>1) or CCW (n<1)
     void turn(Face face, int n);
+
+    // Rotate the whole cube 1, 2 or 3 times CW (n>1) or CCW (n<1)
+    void rotate(Face axis, int n);
 
   private:
     friend std::ostream &operator<<(std::ostream &os, Rubiks &cube);
@@ -74,7 +77,8 @@ class Rubiks
     bool check_single_color(std::string const &part) const;
 
     void run_permutation(std::vector<int> const &permutation);
-    static std::vector<int> _lcw, _rcw, _bcw, _fcw, _dcw, _ucw;
+    static std::vector<int> _tlcw, _trcw, _tbcw, _tfcw, _tdcw, _tucw;
+    static std::vector<int> _rlcw, _rrcw, _rbcw, _rfcw, _rdcw, _rucw;
 
     std::string _state;
 };
