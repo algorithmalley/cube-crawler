@@ -57,7 +57,7 @@ class Rubiks
     // Returns true iff instance represents a cube that has all colors in the right places
     bool solved() const;
 
-    // Calculates a measure for how scrambled the cube is. 0 is solved.
+    // Calculates a measure for how scrambled the cube is. 0 is solved. 1 = max. scrambled.
     auto entropy() const -> double;
 
     // Gets the color at a specific face + cell

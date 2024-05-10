@@ -20,7 +20,7 @@ struct Solver {
 
     virtual auto solve(Rubiks &cube) const -> std::vector<step> = 0;
 
-    virtual auto scramble(Rubiks &cube) const -> std::vector<step>;
+    virtual auto scramble(Rubiks &cube, double min_entropy = 0.0) const -> std::vector<step>;
 
     virtual ~Solver() = default;
 };

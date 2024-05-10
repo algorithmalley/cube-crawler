@@ -293,9 +293,11 @@ Rubiks::Nibble Rubiks::match_nibble(Nibble const &nibble, size_t n) const
 
 void Rubiks::turn(Face face, int n)
 {
-    assert(n % 4 != 0 && "error: n == 0 (mod 4) has no effect");
+    n = n % 4; // 4 turns is identity
 
-    n = n % 4;             // 4 turns is identity
+    if (n == 0) // no effect
+        return;
+
     n = n < 0 ? n + 4 : n; // express as CW rotation
 
     vector<int> const *p = nullptr;
