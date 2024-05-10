@@ -5,6 +5,15 @@
 
 using namespace std;
 
+namespace {
+
+ostream &operator<<(ostream &os, Rubiks::Nibble const &nibble)
+{
+    return os << "<" << nibble.face << ", " << nibble.cell << ", " << nibble.color << ">";
+}
+
+} // namespace
+
 // clang-format off
 
 vector<int> Rubiks::_tlcw = {
@@ -115,6 +124,33 @@ vector<int> Rubiks::_rucw = {
     /* u */ UP + NE, UP + E, UP + SE, UP + N, UP + CC, UP + S, UP + NW, UP + W, UP + SW
 };
 
+array<pair<Rubiks::Face, Rubiks::Cell>, 54> Rubiks::_mscp2 = {{
+    /* l */ {}, {UP, W}, {}, {BACK, E}, {}, {FRONT, W}, {}, {DOWN, W}, {},
+    /* r */ {}, {UP, E}, {}, {FRONT, E}, {}, {BACK, W}, {}, {DOWN, E}, {},
+    /* b */ {}, {UP, N}, {}, {RIGHT, E}, {}, {LEFT, W}, {}, {DOWN, S}, {},
+    /* f */ {}, {UP, S}, {}, {LEFT, E}, {}, {RIGHT, W}, {}, {DOWN, N}, {},
+    /* d */ {}, {FRONT, S}, {}, {LEFT, S}, {}, {RIGHT, S}, {}, {BACK, S}, {},
+    /* u */ {}, {BACK, N}, {}, {LEFT, N}, {}, {RIGHT, N}, {}, {FRONT, N}, {}
+}};
+
+array<pair<Rubiks::Face, Rubiks::Cell>, 54> Rubiks::_mcp2 = {{
+    /* l */ {BACK, NE}, {}, {FRONT, NW}, {}, {}, {}, {BACK, SE}, {}, {FRONT, SW},
+    /* r */ {FRONT, NE}, {}, {BACK, NW}, {}, {}, {}, {FRONT, SE}, {}, {BACK, SW},
+    /* b */ {RIGHT, NE}, {}, {LEFT, NW}, {}, {}, {}, {RIGHT, SE}, {}, {LEFT, SW},
+    /* f */ {LEFT, NE}, {}, {RIGHT, NW}, {}, {}, {}, {LEFT, SE}, {}, {RIGHT, SW},
+    /* d */ {LEFT, SE}, {}, {RIGHT, SW}, {}, {}, {}, {LEFT, SW}, {}, {RIGHT, SE},
+    /* u */ {LEFT, NW}, {}, {RIGHT, NE}, {}, {}, {}, {LEFT, NE}, {}, {RIGHT, NW}
+}};
+
+array<pair<Rubiks::Face, Rubiks::Cell>, 54> Rubiks::_mcp3 = {{
+    /* l */ {UP, NW}, {}, {UP, SW}, {}, {}, {}, {DOWN, SW}, {}, {DOWN, NW},
+    /* r */ {UP, SE}, {}, {UP, NE}, {}, {}, {}, {DOWN, NE}, {}, {DOWN, SE},
+    /* b */ {UP, NE}, {}, {UP, NW}, {}, {}, {}, {DOWN, SE}, {}, {DOWN, SW},
+    /* f */ {UP, SW}, {}, {UP, SE}, {}, {}, {}, {DOWN, NW}, {}, {DOWN, NE},
+    /* d */ {FRONT, SW}, {}, {FRONT, SE}, {}, {}, {}, {BACK, SE}, {}, {BACK, SW},
+    /* u */ {BACK, NE}, {}, {BACK, NW}, {}, {}, {}, {FRONT, NW}, {}, {FRONT, NE}
+}};
+
 // clang-format on
 
 Rubiks::Rubiks()
@@ -126,7 +162,7 @@ Rubiks::Rubiks(string const &lrbfdu) : _state(lrbfdu)
 {
     if (!valid())
     {
-        throw std::invalid_argument("lrbfdu: invalid Rubik's Cube representation");
+        throw invalid_argument("lrbfdu: invalid Rubik's Cube representation");
     }
 }
 
@@ -158,18 +194,101 @@ double Rubiks::entropy() const
     return entropy;
 }
 
-vector<pair<Rubiks::Face, Rubiks::Cell>> Rubiks::find_color(Color color) const
+Rubiks::CenterPiece Rubiks::center_piece(Face face, bool opposite) const
 {
-    vector<pair<Rubiks::Face, Rubiks::Cell>> result;
+    if (opposite)
+    {
+        face = face % 18 == 0 ? (Face)(face + 9) : (Face)(face - 9);
+    }
+    Nibble nibble{face, Cell::CC, color(face, Cell::CC)};
+    return make_tuple(nibble);
+}
+
+array<Rubiks::SideCenterPiece, 4> Rubiks::side_center_pieces(Color color) const
+{
+    array<Rubiks::SideCenterPiece, 4> result;
+    size_t curr_piece = 0;
+    auto nibbles = find_nibbles(color);
+    for (auto const &nibble1 : nibbles)
+    {
+        if (nibble1.cell % 2 == 1) // the side centers are odd
+        {
+            auto nibble2 = match_nibble(nibble1, 2);
+            result[curr_piece++] = make_pair(nibble1, nibble2);
+        }
+    }
+    return result;
+}
+
+array<Rubiks::CornerPiece, 4> Rubiks::corner_pieces(Color color) const
+{
+    array<Rubiks::CornerPiece, 4> result;
+    size_t curr_piece = 0;
+    auto nibbles = find_nibbles(color);
+    for (auto const &nibble1 : nibbles)
+    {
+        if (nibble1.cell == Cell::CC) // CC also even, so need to skip
+            continue;
+
+        if (nibble1.cell % 2 == 0) // the corners are even
+        {
+            auto nibble2 = match_nibble(nibble1, 2);
+            auto nibble3 = match_nibble(nibble1, 3);
+            result[curr_piece++] = make_tuple(nibble1, nibble2, nibble3);
+        }
+    }
+    return result;
+}
+
+vector<Rubiks::Nibble> Rubiks::find_nibbles(Color color) const
+{
+    vector<Nibble> result;
     size_t pos = _state.find(color, 0);
     while (pos != string::npos)
     {
         Face face = (Face)((pos / 9) * 9);
         Cell cell = (Cell)(pos % 9);
-        result.push_back(make_pair(face, cell));
+        result.push_back({face, cell, color});
         pos = _state.find(color, pos + 1);
     }
     return result;
+}
+
+Rubiks::Nibble Rubiks::match_nibble(Nibble const &nibble, size_t n) const
+{
+    assert((n == 1 || n == 2 || n == 3) && "error: can only match nibble with 1st, 2nd or 3rd conjugate");
+    assert((nibble.cell % 2 == 0 || (nibble.cell % 2 == 1 && n != 3)) && "error: side center has no 3rd conjugate");
+
+    // 1st conjugate is just the nibble itself
+    if (n == 1)
+        return nibble;
+
+    // for centers the 1st, 2nd and 3rd conjugate are all the same
+    if (nibble.cell == Cell::CC)
+        return nibble;
+
+    // for side center piece, get its 2nd conjugate
+    if (nibble.cell % 2 == 1)
+    {
+        auto match = _mscp2[nibble.face + nibble.cell];
+        return Nibble{match.first, match.second, color(match.first, match.second)};
+    }
+
+    // for corner piece, get its 2nd conjugate
+    if (nibble.cell % 2 == 0 && n == 2)
+    {
+        auto match = _mcp2[nibble.face + nibble.cell];
+        return Nibble{match.first, match.second, color(match.first, match.second)};
+    }
+
+    // for corner piece, get its 3rd conjugate
+    if (nibble.cell % 2 == 0 && n == 3)
+    {
+        auto match = _mcp3[nibble.face + nibble.cell];
+        return Nibble{match.first, match.second, color(match.first, match.second)};
+    }
+
+    throw invalid_argument("request for invalid nibble conjugate");
 }
 
 void Rubiks::turn(Face face, int n)
@@ -307,7 +426,7 @@ bool Rubiks::check_single_color(string const &part) const
     return part == goal;
 }
 
-ostream &operator<<(ostream &os, Rubiks &cube)
+ostream &operator<<(ostream &os, Rubiks const &cube)
 {
     os << "--- --- --- --- --- ---\n";
     os << " l   r   b   f   d   u \n";
@@ -321,4 +440,89 @@ ostream &operator<<(ostream &os, Rubiks &cube)
         os << "\n";
     }
     os << "--- --- --- --- --- ---\n";
+    return os;
+}
+
+ostream &operator<<(ostream &os, Rubiks::Face const &face)
+{
+    switch (face)
+    {
+    case Rubiks::LEFT:
+        os << "L";
+        break;
+    case Rubiks::RIGHT:
+        os << "R";
+        break;
+    case Rubiks::BACK:
+        os << "B";
+        break;
+    case Rubiks::FRONT:
+        os << "F";
+        break;
+    case Rubiks::DOWN:
+        os << "D";
+        break;
+    case Rubiks::UP:
+        os << "U";
+        break;
+    }
+    return os;
+}
+
+ostream &operator<<(ostream &os, Rubiks::Cell const &cell)
+{
+    switch (cell)
+    {
+    case Rubiks::NW:
+        os << "NW";
+        break;
+    case Rubiks::N:
+        os << "N";
+        break;
+    case Rubiks::NE:
+        os << "NE";
+        break;
+    case Rubiks::W:
+        os << "W";
+        break;
+    case Rubiks::CC:
+        os << "CC";
+        break;
+    case Rubiks::E:
+        os << "E";
+        break;
+    case Rubiks::SW:
+        os << "SW";
+        break;
+    case Rubiks::S:
+        os << "S";
+        break;
+    case Rubiks::SE:
+        os << "SE";
+        break;
+    }
+    return os;
+}
+
+ostream &operator<<(ostream &os, Rubiks::Color const &color) { return os << (char)color; }
+
+ostream &operator<<(ostream &os, Rubiks::CenterPiece const &piece)
+{
+    os << "{ " << get<0>(piece) << " }";
+    return os;
+}
+
+ostream &operator<<(ostream &os, Rubiks::SideCenterPiece const &piece)
+{
+    os << "{ " << get<0>(piece) << ", ";
+    os << "  " << get<1>(piece) << " }";
+    return os;
+}
+
+ostream &operator<<(ostream &os, Rubiks::CornerPiece const &piece)
+{
+    os << "{ " << get<0>(piece) << ", ";
+    os << "  " << get<1>(piece) << ", ";
+    os << "  " << get<2>(piece) << " }";
+    return os;
 }

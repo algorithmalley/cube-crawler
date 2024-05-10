@@ -13,4 +13,6 @@ BraceWrapping:
   AfterClass: true
   AfterFunction: true
   AfterControlStatement: Always
+  BeforeCatch: true
+  BeforeElse: true
 ...
