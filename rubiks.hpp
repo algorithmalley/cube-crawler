@@ -63,13 +63,13 @@ class Rubiks
     // Gets the color at a specific face + cell
     auto color(Face face, Cell cell) const -> Color;
 
-    // Finds the (opt. opposite) center piece at the specified face
-    auto center_piece(Face face, bool opposite = false) const -> CenterPiece;
+    // Finds the center piece at the specified face
+    auto center_piece(Face face) const -> CenterPiece;
 
-    // Finds the side center pieces that contain the specified color
+    // Finds the side center pieces that contain the specified color (1st nibble the one with matching color)
     auto side_center_pieces(Color color) const -> std::array<SideCenterPiece, 4>;
 
-    // Finds the corner pieces that contain the specified color
+    // Finds the corner pieces that contain the specified color (1st nibble the one with matching color)
     auto corner_pieces(Color color) const -> std::array<CornerPiece, 4>;
 
     /*
@@ -107,6 +107,10 @@ class Rubiks
 
     std::string _state;
 };
+
+Rubiks::Face opposite_of(Rubiks::Face face);
+Rubiks::Face left_of(Rubiks::Face face);
+Rubiks::Face right_of(Rubiks::Face face);
 
 std::ostream &operator<<(std::ostream &os, Rubiks const &cube);
 std::ostream &operator<<(std::ostream &os, Rubiks::Face const &face);

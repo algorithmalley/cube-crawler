@@ -194,12 +194,8 @@ double Rubiks::entropy() const
     return entropy;
 }
 
-Rubiks::CenterPiece Rubiks::center_piece(Face face, bool opposite) const
+Rubiks::CenterPiece Rubiks::center_piece(Face face) const
 {
-    if (opposite)
-    {
-        face = face % 18 == 0 ? (Face)(face + 9) : (Face)(face - 9);
-    }
     Nibble nibble{face, Cell::CC, color(face, Cell::CC)};
     return make_tuple(nibble);
 }
@@ -428,6 +424,47 @@ bool Rubiks::check_single_color(string const &part) const
     return part == goal;
 }
 
+Rubiks::Face opposite_of(Rubiks::Face face)
+{
+    return face = face % 18 == 0 ? (Rubiks::Face)(face + 9) : (Rubiks::Face)(face - 9);
+}
+
+Rubiks::Face left_of(Rubiks::Face face)
+{
+    switch (face)
+    {
+    case Rubiks::LEFT:
+        return Rubiks::BACK;
+    case Rubiks::RIGHT:
+        return Rubiks::FRONT;
+    case Rubiks::BACK:
+        return Rubiks::RIGHT;
+    case Rubiks::FRONT:
+        return Rubiks::LEFT;
+    case Rubiks::DOWN:
+    case Rubiks::UP:
+        throw invalid_argument("face: cannot take left-of operator from down/up face");
+    }
+}
+
+Rubiks::Face right_of(Rubiks::Face face)
+{
+    switch (face)
+    {
+    case Rubiks::LEFT:
+        return Rubiks::FRONT;
+    case Rubiks::RIGHT:
+        return Rubiks::BACK;
+    case Rubiks::BACK:
+        return Rubiks::LEFT;
+    case Rubiks::FRONT:
+        return Rubiks::RIGHT;
+    case Rubiks::DOWN:
+    case Rubiks::UP:
+        throw invalid_argument("face: cannot take right-of operator from down/up face");
+    }
+}
+
 ostream &operator<<(ostream &os, Rubiks const &cube)
 {
     os << "--- --- --- --- --- ---\n";
@@ -516,15 +553,15 @@ ostream &operator<<(ostream &os, Rubiks::CenterPiece const &piece)
 
 ostream &operator<<(ostream &os, Rubiks::SideCenterPiece const &piece)
 {
-    os << "{ " << get<0>(piece) << ", ";
-    os << "  " << get<1>(piece) << " }";
+    os << "{ " << get<0>(piece) << ",";
+    os << " " << get<1>(piece) << " }";
     return os;
 }
 
 ostream &operator<<(ostream &os, Rubiks::CornerPiece const &piece)
 {
-    os << "{ " << get<0>(piece) << ", ";
-    os << "  " << get<1>(piece) << ", ";
-    os << "  " << get<2>(piece) << " }";
+    os << "{ " << get<0>(piece) << ",";
+    os << " " << get<1>(piece) << ",";
+    os << " " << get<2>(piece) << " }";
     return os;
 }
