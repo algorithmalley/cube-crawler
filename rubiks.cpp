@@ -1,7 +1,9 @@
 #include "rubiks.hpp"
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -463,6 +465,84 @@ Rubiks::Face right_of(Rubiks::Face face)
     case Rubiks::UP:
         throw invalid_argument("face: cannot take right-of operator from down/up face");
     }
+}
+
+Rubiks::Cell cell_of(Rubiks::Face face, Rubiks::CornerPiece const &piece)
+{
+    assert((face == Rubiks::UP || face == Rubiks::DOWN) && "error: face should be UP or DOWN");
+
+    Rubiks::Nibble conj1, conj2, conj3;
+    tie(conj1, conj2, conj3) = piece;
+
+    // faces of piece, other than the face on which we project
+    Rubiks::Face f1 = conj1.face != face ? conj1.face : conj2.face;
+    Rubiks::Face f2 = conj3.face != face ? conj3.face : conj2.face;
+
+    if ((int)f1 > (int)f2)
+        swap(f1, f2);
+
+    if (face == Rubiks::UP)
+    {
+        if (f1 == Rubiks::LEFT && f2 == Rubiks::BACK)
+            return Rubiks::NW;
+        else if (f1 == Rubiks::RIGHT && f2 == Rubiks::BACK)
+            return Rubiks::NE;
+        else if (f1 == Rubiks::LEFT && f2 == Rubiks::FRONT)
+            return Rubiks::SW;
+        else // if (f1 == Rubiks::RIGHT && f2 == Rubiks::FRONT)
+            return Rubiks::SE;
+    }
+    else if (face == Rubiks::DOWN)
+    {
+        if (f1 == Rubiks::LEFT && f2 == Rubiks::BACK)
+            return Rubiks::SW;
+        else if (f1 == Rubiks::RIGHT && f2 == Rubiks::BACK)
+            return Rubiks::SE;
+        else if (f1 == Rubiks::LEFT && f2 == Rubiks::FRONT)
+            return Rubiks::NW;
+        else // if (f1 == Rubiks::RIGHT && f2 == Rubiks::FRONT)
+            return Rubiks::NE;
+    }
+    else
+    {
+        throw invalid_argument("face: can only take cell-of operator from down/up face");
+    }
+}
+
+std::string color_key(Rubiks::CenterPiece const &piece)
+{
+    string key;
+    key += (char)get<0>(piece).color;
+    return key;
+}
+
+std::string color_key(Rubiks::SideCenterPiece const &piece)
+{
+    string key;
+    key += (char)get<0>(piece).color;
+    key += (char)get<1>(piece).color;
+    sort(key.begin(), key.end());
+    return key;
+}
+
+std::string color_key(Rubiks::CornerPiece const &piece)
+{
+    string key;
+    key += (char)get<0>(piece).color;
+    key += (char)get<1>(piece).color;
+    key += (char)get<2>(piece).color;
+    sort(key.begin(), key.end());
+    return key;
+}
+
+std::string color_key(Rubiks::Color c1, Rubiks::Color c2, Rubiks::Color c3)
+{
+    string key;
+    key += (char)c1;
+    key += (char)c2;
+    key += (char)c3;
+    sort(key.begin(), key.end());
+    return key;
 }
 
 ostream &operator<<(ostream &os, Rubiks const &cube)

@@ -16,28 +16,34 @@ int main()
         log_file.open("cube-crawler.log");
 
         auto solver = Solver::Create(Solver::L123);
-        solver->set_log(log_file);
+        solver->set_log(log_file); // enable to get extensive debug info in log file
 
-        cout << "creating default cube...\n";
         Rubiks cube;
-        cout << cube;
-        cout << "cube status: " << (cube.valid() ? "valid" : "invalid") << "\n";
-        cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
-        cout << "cube entropy: " << cube.entropy() << "\n";
+        log_file << cube << "\n";
 
-        cout << "scrambling cube...\n";
-        auto steps = solver->scramble(cube);
-        cout << cube;
-        cout << "cube status: " << (cube.valid() ? "valid" : "invalid") << "\n";
-        cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
-        cout << "cube entropy: " << cube.entropy() << "\n";
+        auto problem = solver->scramble(cube);
 
-        cout << "solving cube...\n";
-        auto steps_solve = solver->solve(cube);
-        cout << cube;
-        cout << "cube status: " << (cube.valid() ? "valid" : "invalid") << "\n";
-        cout << "cube status: " << (cube.solved() ? "solved" : "scrambled") << "\n";
-        cout << "# steps: " << steps_solve.size() << "\n";
+        log_file << "scrambling steps:\n";
+        for (auto step : problem)
+        {
+            auto face = step.first;
+            auto n = step.second;
+            log_file << "- " << face << ": " << abs(n) << "x " << (n < 0 ? "CCW" : "CW") << "\n";
+        }
+        log_file << "\n" << cube << "\n";
+
+        auto solution = solver->solve(cube);
+
+        log_file << "\nsolving steps:\n";
+        for (auto step : solution)
+        {
+            auto face = step.first;
+            auto n = step.second;
+            log_file << "- " << face << ": " << abs(n) << "x " << (n < 0 ? "CCW" : "CW") << "\n";
+        }
+        log_file << "\n" << cube << "\n";
+
+        log_file.flush();
 
         return 0;
     }

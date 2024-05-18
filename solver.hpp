@@ -66,6 +66,8 @@ class EasySolver final : public BaseSolver
     void solve_2nd_layer(Rubiks &cube, std::vector<step> &registry) const;
     void solve_3rd_layer(Rubiks &cube, std::vector<step> &registry) const;
     void solve_l1_cross(Rubiks &cube, std::vector<step> &registry) const;
+    void solve_l1_cross_a(Rubiks &cube, std::vector<step> &registry) const;
+    void solve_l1_cross_b(Rubiks &cube, std::vector<step> &registry) const;
     void solve_l1_corners(Rubiks &cube, std::vector<step> &registry) const;
     void solve_l2_edges(Rubiks &cube, std::vector<step> &registry) const;
     void solve_l3_cross(Rubiks &cube, std::vector<step> &registry) const;
