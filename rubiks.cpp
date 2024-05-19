@@ -535,6 +535,15 @@ std::string color_key(Rubiks::CornerPiece const &piece)
     return key;
 }
 
+std::string color_key(Rubiks::Color c1, Rubiks::Color c2)
+{
+    string key;
+    key += (char)c1;
+    key += (char)c2;
+    sort(key.begin(), key.end());
+    return key;
+}
+
 std::string color_key(Rubiks::Color c1, Rubiks::Color c2, Rubiks::Color c3)
 {
     string key;

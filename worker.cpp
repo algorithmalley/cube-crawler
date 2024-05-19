@@ -26,7 +26,7 @@ void scan(Rubiks &cube, Device &crawler)
     // TODO: implement
 }
 
-void run(vector<Solver::step> const &steps, Device &crawler)
+void run(vector<Solver::Step> const &steps, Device &crawler)
 {
     // TODO: implement
 }

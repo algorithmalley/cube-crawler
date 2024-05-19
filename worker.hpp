@@ -10,4 +10,4 @@ class Device;
 void scan(Rubiks &cube, Device &crawler);
 
 // Apply the given steps to the cube on the device
-void run(std::vector<Solver::step> const &steps, Device &crawler);
+void run(std::vector<Solver::Step> const &steps, Device &crawler);

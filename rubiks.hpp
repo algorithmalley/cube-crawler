@@ -116,6 +116,7 @@ Rubiks::Cell cell_of(Rubiks::Face face, Rubiks::CornerPiece const &piece);
 std::string color_key(Rubiks::CenterPiece const &piece);
 std::string color_key(Rubiks::SideCenterPiece const &piece);
 std::string color_key(Rubiks::CornerPiece const &piece);
+std::string color_key(Rubiks::Color c1, Rubiks::Color c2);
 std::string color_key(Rubiks::Color c1, Rubiks::Color c2, Rubiks::Color c3);
 
 std::ostream &operator<<(std::ostream &os, Rubiks const &cube);

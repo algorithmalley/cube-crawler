@@ -25,22 +25,14 @@ int main()
 
         log_file << "scrambling steps:\n";
         for (auto step : problem)
-        {
-            auto face = step.first;
-            auto n = step.second;
-            log_file << "- " << face << ": " << abs(n) << "x " << (n < 0 ? "CCW" : "CW") << "\n";
-        }
+            log_file << step;
         log_file << "\n" << cube << "\n";
 
         auto solution = solver->solve(cube);
 
         log_file << "\nsolving steps:\n";
         for (auto step : solution)
-        {
-            auto face = step.first;
-            auto n = step.second;
-            log_file << "- " << face << ": " << abs(n) << "x " << (n < 0 ? "CCW" : "CW") << "\n";
-        }
+            log_file << step;
         log_file << "\n" << cube << "\n";
 
         log_file.flush();
