@@ -35,7 +35,6 @@ bool apply_steps(Rubiks &cube, std::vector<Solver::Step> &registry, size_t &curr
                 break;
             }
             log << step;
-            cube.turn(face, n);
             curr_step_idx++;
         }
         return true;
@@ -43,6 +42,140 @@ bool apply_steps(Rubiks &cube, std::vector<Solver::Step> &registry, size_t &curr
     return false;
 }
 
+// Nbr of times to turn UP to align two centers matching the given corner key with the cell in UP
+int projected_distance_up(Rubiks const &cube, string const &cc_cols_key, Rubiks::Cell cell)
+{
+    assert(cc_cols_key.length() == 2 && "two center's colors expected in projected_distance_up");
+    assert((cell == Rubiks::NW || cell == Rubiks::NE || cell == Rubiks::SW || cell == Rubiks::SE) &&
+           "corner cell of UP face expected in projected_distance_up");
+
+    Rubiks::Color left_cc, right_cc, back_cc, front_cc;
+    left_cc = cube.color(Rubiks::LEFT, Rubiks::CC);
+    right_cc = cube.color(Rubiks::RIGHT, Rubiks::CC);
+    back_cc = cube.color(Rubiks::BACK, Rubiks::CC);
+    front_cc = cube.color(Rubiks::FRONT, Rubiks::CC);
+
+    string nw_color = color_key(left_cc, back_cc);
+    string ne_color = color_key(right_cc, back_cc);
+    string sw_color = color_key(left_cc, front_cc);
+    string se_color = color_key(right_cc, front_cc);
+
+    if (cell == Rubiks::NW)
+    {
+        if (cc_cols_key == nw_color)
+            return 0;
+        if (cc_cols_key == ne_color)
+            return -1;
+        if (cc_cols_key == sw_color)
+            return 1;
+        if (cc_cols_key == se_color)
+            return 2;
+    }
+    else if (cell == Rubiks::NE)
+    {
+        if (cc_cols_key == nw_color)
+            return 1;
+        if (cc_cols_key == ne_color)
+            return 0;
+        if (cc_cols_key == sw_color)
+            return 2;
+        if (cc_cols_key == se_color)
+            return -1;
+    }
+    else if (cell == Rubiks::SW)
+    {
+        if (cc_cols_key == nw_color)
+            return -1;
+        if (cc_cols_key == ne_color)
+            return 2;
+        if (cc_cols_key == sw_color)
+            return 0;
+        if (cc_cols_key == se_color)
+            return 1;
+    }
+    else if (cell == Rubiks::SE)
+    {
+        if (cc_cols_key == nw_color)
+            return 2;
+        if (cc_cols_key == ne_color)
+            return 1;
+        if (cc_cols_key == sw_color)
+            return -1;
+        if (cc_cols_key == se_color)
+            return 0;
+    }
+
+    assert(false && "logic error in projected_distance_up");
+    return 0;
+}
+
+// Nbr of times to turn UP to align given side piece above side of corner with matching colors
+int projected_distance_up(Rubiks const &cube, Rubiks::SideCenterPiece piece)
+{
+    Rubiks::Color left_cc, right_cc, back_cc, front_cc;
+    left_cc = cube.color(Rubiks::LEFT, Rubiks::CC);
+    right_cc = cube.color(Rubiks::RIGHT, Rubiks::CC);
+    back_cc = cube.color(Rubiks::BACK, Rubiks::CC);
+    front_cc = cube.color(Rubiks::FRONT, Rubiks::CC);
+
+    string nw_color = color_key(left_cc, back_cc);
+    string ne_color = color_key(right_cc, back_cc);
+    string sw_color = color_key(left_cc, front_cc);
+    string se_color = color_key(right_cc, front_cc);
+
+    auto piece_cell = cell_of(Rubiks::UP, piece); // where are we, projected in UP
+    auto piece_color = color_key(piece);          // where do we need to go?
+
+    if (piece_cell == Rubiks::N)
+    {
+        if (piece_color == nw_color)
+            return cube.color(Rubiks::UP, piece_cell) == back_cc ? -1 : 0;
+        if (piece_color == ne_color)
+            return cube.color(Rubiks::UP, piece_cell) == back_cc ? 1 : 0;
+        if (piece_color == sw_color)
+            return cube.color(Rubiks::UP, piece_cell) == front_cc ? -1 : 2;
+        if (piece_color == se_color)
+            return cube.color(Rubiks::UP, piece_cell) == front_cc ? 1 : 2;
+    }
+    else if (piece_cell == Rubiks::W)
+    {
+        if (piece_color == nw_color)
+            return cube.color(Rubiks::UP, piece_cell) == left_cc ? 1 : 0;
+        if (piece_color == sw_color)
+            return cube.color(Rubiks::UP, piece_cell) == left_cc ? -1 : 0;
+        if (piece_color == ne_color)
+            return cube.color(Rubiks::UP, piece_cell) == right_cc ? 1 : 2;
+        if (piece_color == se_color)
+            return cube.color(Rubiks::UP, piece_cell) == right_cc ? -1 : 2;
+    }
+    else if (piece_cell == Rubiks::E)
+    {
+        if (piece_color == ne_color)
+            return cube.color(Rubiks::UP, piece_cell) == right_cc ? -1 : 0;
+        if (piece_color == se_color)
+            return cube.color(Rubiks::UP, piece_cell) == right_cc ? 1 : 0;
+        if (piece_color == nw_color)
+            return cube.color(Rubiks::UP, piece_cell) == left_cc ? -1 : 2;
+        if (piece_color == sw_color)
+            return cube.color(Rubiks::UP, piece_cell) == left_cc ? 1 : 2;
+    }
+    else if (piece_cell == Rubiks::S)
+    {
+        if (piece_color == sw_color)
+            return cube.color(Rubiks::UP, piece_cell) == front_cc ? 1 : 0;
+        if (piece_color == se_color)
+            return cube.color(Rubiks::UP, piece_cell) == front_cc ? -1 : 0;
+        if (piece_color == nw_color)
+            return cube.color(Rubiks::UP, piece_cell) == back_cc ? 1 : 2;
+        if (piece_color == ne_color)
+            return cube.color(Rubiks::UP, piece_cell) == back_cc ? -1 : 2;
+    }
+
+    assert(false && "logic error in projected_distance_up");
+    return 0;
+}
+
+// Nbr of times to turn UP to align given corner piece above corner with matching colors
 int projected_distance_up(Rubiks const &cube, Rubiks::CornerPiece piece)
 {
     Rubiks::Color down_cc, left_cc, right_cc, back_cc, front_cc;
@@ -465,6 +598,7 @@ void L123Solver::solve_l2_edges(Rubiks &cube, std::vector<Step> &registry) const
 
                 Rubiks::Nibble conj1, conj2; // conj1 := guaranteed the face with same color as piece_i.first
                 std::tie(conj1, conj2) = piece_j;
+                int d;
 
                 log() << piece_j << ": ";
                 if (cube.color(conj1.face, Rubiks::CC) == conj1.color &&
@@ -474,26 +608,53 @@ void L123Solver::solve_l2_edges(Rubiks &cube, std::vector<Step> &registry) const
                     done.insert(color_key_j);
                     break;
                 }
-                else if (conj1.face != Rubiks::UP || conj2.face != Rubiks::UP)
+                else if ((d = projected_distance_up(cube, color_key_j, Rubiks::SE)) != 0)
                 {
-                    log() << "move from 2nd to 1st layer\n";
-                    // TODO
+                    log() << "rotate cube to have " << color_key_j << " in right-front\n";
+                    registry.push_back(make_tuple(Solver::Rotate, Rubiks::UP, d));
                 }
-                else if (conj1.face != Rubiks::UP || conj2.face != Rubiks::UP)
+                else if (conj1.face != Rubiks::UP && conj2.face != Rubiks::UP)
                 {
-                    log() << "move from 2nd to 1st layer\n";
-                    // TODO
+                    log() << "first move from 2nd to 1st layer\n";
+                    registry.push_back(make_tuple(Solver::Turn, conj1.face, -1));
+                    registry.push_back(make_tuple(Solver::Turn, conj2.face, -1));
+                    registry.push_back(make_tuple(Solver::Turn, conj1.face, 1));
+                    registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, 1));
+                    registry.push_back(make_tuple(Solver::Turn, conj1.face, 1));
+                    registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, -1));
+                    registry.push_back(make_tuple(Solver::Turn, conj1.face, -1));
+                    registry.push_back(make_tuple(Solver::Turn, conj2.face, 1));
                 }
-                else if ((conj1.face != Rubiks::UP && cube.color(conj1.face, Rubiks::CC) != conj1.color) ||
-                         (conj2.face != Rubiks::UP && cube.color(conj2.face, Rubiks::CC) != conj2.color))
+                else if ((d = projected_distance_up(cube, piece_j)) != 0)
                 {
                     log() << "align with " << conj1.color << " and " << conj2.color << " side\n";
-                    // TODO
+                    registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, d));
                 }
                 else
                 {
                     log() << "rotate into 2nd layer\n";
-                    // TODO
+                    if (cell_of(Rubiks::UP, piece_j) == Rubiks::S)
+                    {
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, 1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::RIGHT, 1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::RIGHT, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::FRONT, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, 1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::FRONT, 1));
+                    }
+                    else // cell_of(Rubiks::UP, piece_j) == Rubiks::E
+                    {
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::RIGHT, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::FRONT, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::RIGHT, 1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, 1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::RIGHT, 1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::UP, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::RIGHT, -1));
+                        registry.push_back(make_tuple(Solver::Turn, Rubiks::FRONT, 1));
+                    }
                 }
 
                 apply_steps(cube, registry, curr_step_idx, log());

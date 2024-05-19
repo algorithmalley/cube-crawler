@@ -467,6 +467,44 @@ Rubiks::Face right_of(Rubiks::Face face)
     }
 }
 
+Rubiks::Cell cell_of(Rubiks::Face face, Rubiks::SideCenterPiece const &piece)
+{
+    assert((face == Rubiks::UP || face == Rubiks::DOWN) && "error: face should be UP or DOWN");
+
+    Rubiks::Nibble conj1, conj2;
+    tie(conj1, conj2) = piece;
+
+    // face of piece, other than the face on which we project
+    Rubiks::Face f = conj1.face != face ? conj1.face : conj2.face;
+
+    if (face == Rubiks::UP)
+    {
+        if (f == Rubiks::BACK)
+            return Rubiks::N;
+        else if (f == Rubiks::LEFT)
+            return Rubiks::W;
+        else if (f == Rubiks::RIGHT)
+            return Rubiks::E;
+        else // if (f == Rubiks::FRONT)
+            return Rubiks::S;
+    }
+    else if (face == Rubiks::DOWN)
+    {
+        if (f == Rubiks::BACK)
+            return Rubiks::S;
+        else if (f == Rubiks::LEFT)
+            return Rubiks::W;
+        else if (f == Rubiks::RIGHT)
+            return Rubiks::E;
+        else // if (f == Rubiks::FRONT)
+            return Rubiks::N;
+    }
+    else
+    {
+        throw invalid_argument("face: can only take cell-of operator from down/up face");
+    }
+}
+
 Rubiks::Cell cell_of(Rubiks::Face face, Rubiks::CornerPiece const &piece)
 {
     assert((face == Rubiks::UP || face == Rubiks::DOWN) && "error: face should be UP or DOWN");

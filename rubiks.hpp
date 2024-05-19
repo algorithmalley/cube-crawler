@@ -111,6 +111,7 @@ class Rubiks
 Rubiks::Face opposite_of(Rubiks::Face face);
 Rubiks::Face left_of(Rubiks::Face face);
 Rubiks::Face right_of(Rubiks::Face face);
+Rubiks::Cell cell_of(Rubiks::Face face, Rubiks::SideCenterPiece const &piece);
 Rubiks::Cell cell_of(Rubiks::Face face, Rubiks::CornerPiece const &piece);
 
 std::string color_key(Rubiks::CenterPiece const &piece);
