@@ -3,6 +3,7 @@
 class Device
 {
   public:
-    void flip_cube();
-    void turn_cube();
+    void scan();
+    void flip();
+    void turn();
 };

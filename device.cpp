@@ -19,6 +19,8 @@ enum class Sensors : int { BUTTON, COLOR, CUBE };
 
 enum class Actuators : int { BEAM, TURNTABLE, SCANNER };
 
-void Device::flip_cube() {}
+void Device::scan() {}
 
-void Device::turn_cube() {}
+void Device::flip() {}
+
+void Device::turn() {}
