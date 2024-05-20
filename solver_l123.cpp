@@ -616,6 +616,8 @@ void L123Solver::solve_l2_edges(Rubiks &cube, std::vector<Step> &registry) const
                 else if (conj1.face != Rubiks::UP && conj2.face != Rubiks::UP)
                 {
                     log() << "first move from 2nd to 1st layer\n";
+                    if (conj1.cell == Rubiks::E) // doesn't matter locally, and so we only need one case
+                        swap(conj1.face, conj2.face);
                     registry.push_back(make_tuple(Solver::Turn, conj1.face, -1));
                     registry.push_back(make_tuple(Solver::Turn, conj2.face, -1));
                     registry.push_back(make_tuple(Solver::Turn, conj1.face, 1));
