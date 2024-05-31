@@ -2,10 +2,12 @@
 #include "rubiks.hpp"
 #include "solver.hpp"
 #include "worker.hpp"
+#include <chrono>
 #include <cstring>
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
@@ -41,11 +43,36 @@ int run_pc()
 int run_brick()
 {
     Device crawler;
+
+    crawler.tell("cube detected!");
+
+    for (int i = 0; i < 2; i++)
+    {
+        auto waitfor = chrono::seconds(1);
+
+        crawler.turn(false);
+        this_thread::sleep_for(waitfor);
+        crawler.rotz(true);
+        this_thread::sleep_for(waitfor);
+        crawler.flip();
+        this_thread::sleep_for(waitfor);
+        crawler.turn(true);
+        this_thread::sleep_for(waitfor);
+        crawler.rotz(false);
+        this_thread::sleep_for(waitfor);
+        crawler.flip();
+        this_thread::sleep_for(waitfor);
+    }
+
+    crawler.tell("cube solved!");
+
+    /*
     Rubiks cube;
     auto solver = Solver::Create(Solver::L123);
     scan(cube, crawler);
     auto solution = solver->solve(cube);
     run(solution, crawler);
+    */
     return 0;
 }
 
