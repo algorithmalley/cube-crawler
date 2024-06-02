@@ -1,9 +1,26 @@
 #include "device.hpp"
 #include "ev3dev.h"
 #include <thread>
+#include <utility>
 
 using namespace std;
 using namespace ev3dev;
+
+using NofRotations = int;
+using NofFlips = int;
+using InstructionSet = std::pair<NofRotations, NofFlips>;
+
+std::map<Device::DeviceFace, Device::DeviceFace> beam_permutation = {
+    {Device::LEFT, Device::DOWN},   {Device::RIGHT, Device::UP},   {Device::BACK, Device::BACK},
+    {Device::FRONT, Device::FRONT}, {Device::DOWN, Device::RIGHT}, {Device::UP, Device::LEFT}};
+
+std::map<Device::DeviceFace, Device::DeviceFace> table_ccw_permutation = {
+    {Device::LEFT, Device::FRONT},  {Device::RIGHT, Device::BACK}, {Device::BACK, Device::LEFT},
+    {Device::FRONT, Device::RIGHT}, {Device::DOWN, Device::DOWN},  {Device::UP, Device::UP}};
+
+std::map<Device::DeviceFace, Device::DeviceFace> table_cw_permutation = {
+    {Device::LEFT, Device::BACK},  {Device::RIGHT, Device::FRONT}, {Device::BACK, Device::RIGHT},
+    {Device::FRONT, Device::LEFT}, {Device::DOWN, Device::DOWN},   {Device::UP, Device::UP}};
 
 sensor g_sensors[3]{{INPUT_1},  // (1) EV3 touch (device lego-ev3-touch, port
                                 // ev3-ports:in1, mode TOUCH)
@@ -30,6 +47,12 @@ void waitidle(motor const &motor)
 }
 
 Device::Device()
+    : _state({{Rubiks::LEFT, Device::LEFT},
+              {Rubiks::RIGHT, Device::RIGHT},
+              {Rubiks::BACK, Device::BACK},
+              {Rubiks::FRONT, Device::FRONT},
+              {Rubiks::DOWN, Device::DOWN},
+              {Rubiks::UP, Device::UP}})
 {
     // Init beam
     motor &beam = g_motors[Actuators::BEAM];
@@ -63,6 +86,47 @@ Device::~Device()
     turntable.reset();
 }
 
+bool Device::valid() const
+{
+    return g_sensors[Sensors::BUTTON].connected() && g_sensors[Sensors::COLOR].connected() &&
+           g_sensors[Sensors::CUBE].connected() && g_motors[Actuators::BEAM].connected() &&
+           g_motors[Actuators::TURNTABLE].connected() && g_motors[Actuators::SCANNER].connected();
+}
+
+void Device::prepare(DeviceFace face)
+{
+    switch (face)
+    {
+    case Device::LEFT:
+        flip();
+        break;
+
+    case Device::RIGHT:
+        flip();
+        flip();
+        flip();
+        break;
+
+    case Device::BACK:
+        rotate(true);
+        flip();
+        break;
+
+    case Device::FRONT:
+        rotate(false);
+        flip();
+        break;
+
+    case Device::DOWN:
+        break;
+
+    case Device::UP:
+        flip();
+        flip();
+        break;
+    }
+}
+
 void Device::scan() {}
 
 void Device::flip()
@@ -82,6 +146,11 @@ void Device::flip()
     beam.run_to_rel_pos();
     beam.set_speed_sp(150);
     waitidle(beam);
+
+    for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+    {
+        _state[face] = beam_permutation[_state[face]];
+    }
 }
 
 void Device::turn(bool ccw)
@@ -96,16 +165,21 @@ void Device::turn(bool ccw)
     beam.run_to_rel_pos();
     waitidle(beam);
 
-    rotz(ccw);
+    rotate(ccw);
 
     beam.set_speed_sp(325);
     beam.set_position_sp(155);
     beam.run_to_rel_pos();
     beam.set_speed_sp(150);
     waitidle(beam);
+
+    for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+    {
+        _state[face] = beam_permutation[_state[face]];
+    }
 }
 
-void Device::rotz(bool ccw)
+void Device::rotate(bool ccw)
 {
     motor &turntable = g_motors[Actuators::TURNTABLE];
     int curr_pos_sp = turntable.position_sp();
@@ -115,6 +189,11 @@ void Device::rotz(bool ccw)
     }
     turntable.run_to_rel_pos();
     waitidle(turntable);
+
+    for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+    {
+        _state[face] = ccw ? table_ccw_permutation[_state[face]] : table_cw_permutation[_state[face]];
+    }
 }
 
 void Device::tell(std::string const &msg) { sound::speak(msg, true); }
