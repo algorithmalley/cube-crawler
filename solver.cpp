@@ -24,7 +24,8 @@ shared_ptr<Solver> Solver::Create(Strategy strategy)
 
 std::ostream &operator<<(std::ostream &os, Solver::Step const &step)
 {
-    assert((get<0>(step) == Solver::Turn || get<0>(step) == Solver::Rotate && get<1>(step) == Rubiks::UP) &&
+    assert((get<0>(step) == Solver::Turn ||
+            get<0>(step) == Solver::Rotate && (get<1>(step) == Rubiks::UP || get<1>(step) == Rubiks::DOWN)) &&
            "rotation only about UP/DOWN axis");
 
     Solver::Operation op;
@@ -47,7 +48,7 @@ std::ostream &operator<<(std::ostream &os, Solver::Step const &step)
 
 namespace detail {
 
-constexpr size_t MIN_SCRAMBLE = 30;
+constexpr size_t MIN_SCRAMBLE = 20;
 constexpr size_t FACES = 6;
 constexpr size_t CELLS = 9;
 constexpr size_t TURNS = 3;

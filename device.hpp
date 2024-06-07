@@ -43,24 +43,24 @@ class Device
     */
 
     // Bring the given device face to the turn table
-    void prepare(DeviceFace face);
+    void down(DeviceFace face);
 
-    // scan face that is up
+    // Scan color of cube's face that is up
     void scan();
 
-    // flip once, brings face at scanner's side up
+    // Flip once, brings face at the color scanner's side up
     void flip();
 
-    // turn bottom layer once ccw or cw
-    void turn(bool ccw = true);
-
-    // rotate whole cube around z-axis once ccw or cw
-    void rotate(bool ccw = true);
+    // Turn the table n times ccw (<0) or cw (>0) (opt: locking cube induces a flip at the end)
+    void turn(int n, bool lock);
 
     // let cube-crawler speak a msg
     void tell(std::string const &msg);
 
   private:
+    void internal_turn(int n, bool lock, bool apply_beam_perm, bool apply_table_perm);
+    void do_move_beam(bool forward, bool backward);
+    void do_turn_table(bool ccw_table, uint8_t n_table);
     std::map<RubiksFace, DeviceFace> _state;
 };
 

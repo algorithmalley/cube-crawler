@@ -1,32 +1,41 @@
 #include "worker.hpp"
 #include "device.hpp"
 #include "rubiks.hpp"
+#include <cmath>
+#include <tuple>
+
+#include <iostream>
 
 using namespace std;
-
-namespace {
-
-struct DeviceState {
-};
-
-void operate_device(Rubiks::Face face, int n, DeviceState &state)
-{
-    // TODO
-    // - track which side of cube is at turn table
-    // - this induces a delta w.r.t. the face turned now (step.first)
-    //   (where the delta means a # of table and/or beam rotations)
-    // - move the physical cube with this delta, so that the correct face is at the turn table
-    // - apply the turn physically
-}
-
-} // namespace
 
 void scan(Rubiks &cube, Device &crawler)
 {
     // TODO: implement
 }
 
-void run(vector<Solver::Step> const &steps, Device &crawler)
+void run(vector<Solver::Step> const &steps, Device &crawler, std::function<bool()> const &interrupted)
 {
-    // TODO: implement
+    for (auto step : steps)
+    {
+        cout << step;
+
+        Solver::Operation op;
+        Rubiks::Face face;
+        int n;
+        tie(op, face, n) = step;
+
+        if (interrupted())
+            break;
+
+        auto const &cube_to_device_face_map = crawler.permutation();
+        crawler.down(cube_to_device_face_map.at(face));
+
+        if (interrupted())
+            break;
+
+        //        cout << "check correct face is down and press enter\n";
+        //        cin.ignore();
+
+        crawler.turn(n * -1, op != Solver::Rotate); // cube ccw <=> table cw
+    }
 }

@@ -1,7 +1,7 @@
 #include "device.hpp"
 #include "ev3dev.h"
+#include <cmath>
 #include <thread>
-#include <utility>
 
 using namespace std;
 using namespace ev3dev;
@@ -74,7 +74,7 @@ Device::Device()
     turntable.reset();
     turntable.set_stop_action("hold");
     turntable.set_speed_sp(500);
-    turntable.set_position_sp(-268);
+    turntable.set_position_sp(-270);
 }
 
 Device::~Device()
@@ -93,7 +93,7 @@ bool Device::valid() const
            g_motors[Actuators::TURNTABLE].connected() && g_motors[Actuators::SCANNER].connected();
 }
 
-void Device::prepare(DeviceFace face)
+void Device::down(DeviceFace face)
 {
     switch (face)
     {
@@ -108,12 +108,12 @@ void Device::prepare(DeviceFace face)
         break;
 
     case Device::BACK:
-        rotate(true);
+        internal_turn(-1, false, true, true);
         flip();
         break;
 
     case Device::FRONT:
-        rotate(false);
+        internal_turn(1, false, true, true);
         flip();
         break;
 
@@ -131,21 +131,7 @@ void Device::scan() {}
 
 void Device::flip()
 {
-    motor &beam = g_motors[Actuators::BEAM];
-
-    beam.set_position_sp(-215);
-    beam.run_to_rel_pos();
-    waitidle(beam);
-
-    beam.set_position_sp(60);
-    beam.run_to_rel_pos();
-    waitidle(beam);
-
-    beam.set_speed_sp(325);
-    beam.set_position_sp(155);
-    beam.run_to_rel_pos();
-    beam.set_speed_sp(150);
-    waitidle(beam);
+    do_move_beam(true, true);
 
     for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
     {
@@ -153,47 +139,90 @@ void Device::flip()
     }
 }
 
-void Device::turn(bool ccw)
+void Device::turn(int n, bool lock) { internal_turn(n, lock, true, false); }
+
+void Device::tell(std::string const &msg) { sound::speak(msg, true); }
+
+void Device::internal_turn(int n, bool lock, bool apply_beam_perm, bool apply_table_perm)
+{
+    if (lock)
+    {
+        do_move_beam(true, false);
+    }
+
+    n = n == -3 ? 1 : n == 3 ? -1 : n;
+    bool ccw = n < 0;
+    do_turn_table(ccw, abs(n));
+
+    if (lock)
+    {
+        do_move_beam(false, true);
+
+        if (apply_beam_perm)
+        {
+            for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+            {
+                _state[face] = beam_permutation[_state[face]];
+            }
+        }
+    }
+    else if (apply_table_perm)
+    {
+        for (int i = 0; i < abs(n); i++)
+        {
+            for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+            {
+                _state[face] = ccw ? table_ccw_permutation[_state[face]] : table_cw_permutation[_state[face]];
+            }
+        }
+    }
+}
+
+void Device::do_move_beam(bool forward, bool backward)
 {
     motor &beam = g_motors[Actuators::BEAM];
 
-    beam.set_position_sp(-215);
-    beam.run_to_rel_pos();
-    waitidle(beam);
-
-    beam.set_position_sp(60);
-    beam.run_to_rel_pos();
-    waitidle(beam);
-
-    rotate(ccw);
-
-    beam.set_speed_sp(325);
-    beam.set_position_sp(155);
-    beam.run_to_rel_pos();
-    beam.set_speed_sp(150);
-    waitidle(beam);
-
-    for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+    if (forward)
     {
-        _state[face] = beam_permutation[_state[face]];
+        beam.set_position_sp(-215);
+        beam.run_to_rel_pos();
+        waitidle(beam);
+    }
+
+    if (forward && backward)
+    {
+        beam.set_position_sp(60);
+        beam.run_to_rel_pos();
+        waitidle(beam);
+    }
+
+    if (backward)
+    {
+        beam.set_speed_sp(325);
+        beam.set_position_sp((forward && backward) ? 155 : 215);
+        beam.run_to_rel_pos();
+        beam.set_speed_sp(150);
+        waitidle(beam);
+
+        // A tad of stabilisation time, else the beam bumps onto the brick
+        chrono::milliseconds waitfor = chrono::milliseconds(1000);
+        this_thread::sleep_for(waitfor);
     }
 }
 
-void Device::rotate(bool ccw)
+void Device::do_turn_table(bool ccw_table, uint8_t n_table)
 {
     motor &turntable = g_motors[Actuators::TURNTABLE];
     int curr_pos_sp = turntable.position_sp();
-    if ((ccw && curr_pos_sp > 0) || (!ccw && curr_pos_sp < 0))
+
+    if ((ccw_table && curr_pos_sp > 0) || (!ccw_table && curr_pos_sp < 0))
     {
         turntable.set_position_sp(-curr_pos_sp);
     }
-    turntable.run_to_rel_pos();
-    waitidle(turntable);
 
-    for (auto face : {Rubiks::LEFT, Rubiks::RIGHT, Rubiks::BACK, Rubiks::FRONT, Rubiks::DOWN, Rubiks::UP})
+    for (uint8_t i = 0; i < n_table; i++)
     {
-        _state[face] = ccw ? table_ccw_permutation[_state[face]] : table_cw_permutation[_state[face]];
+        turntable.run_to_rel_pos();
+        waitidle(turntable);
     }
 }
-
-void Device::tell(std::string const &msg) { sound::speak(msg, true); }

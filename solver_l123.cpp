@@ -35,6 +35,7 @@ bool apply_steps(Rubiks &cube, std::vector<Solver::Step> &registry, size_t &curr
                 break;
             }
             log << step;
+            log << cube;
             curr_step_idx++;
         }
         return true;
@@ -252,7 +253,7 @@ vector<Solver::Step> L123Solver::solve(Rubiks &cube) const
 
     solve_1st_layer(cube, registry);
     solve_2nd_layer(cube, registry);
-    solve_3rd_layer(cube, registry);
+    // solve_3rd_layer(cube, registry);
 
     return registry;
 }

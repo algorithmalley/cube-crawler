@@ -2,14 +2,37 @@
 #include "rubiks.hpp"
 #include "solver.hpp"
 #include "worker.hpp"
-#include <chrono>
+#include <csignal>
 #include <cstring>
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <thread>
 
 using namespace std;
+
+#pragma region extern "C"
+
+namespace {
+
+volatile bool _interrupted = false;
+bool interrupted() { return _interrupted; };
+
+void sigint_ignore(int /*s*/)
+{
+    std::cout << "Busy shutting down, one moment please...\n";
+    signal(SIGINT, sigint_ignore); // ignore subsequent ctrl-c's
+}
+
+void sigint_graciously(int /*s*/)
+{
+    std::cout << "...\n";
+    _interrupted = true;
+    signal(SIGINT, sigint_ignore); // ignore subsequent ctrl-c's
+}
+
+} // namespace
+
+#pragma endregion
 
 int run_pc()
 {
@@ -44,24 +67,28 @@ int run_brick()
 {
     Device crawler;
 
+    if (!crawler.valid())
+        throw runtime_error("LEGO Cube-Crawler not valid");
+
     crawler.tell("cube detected!");
 
-    for (int i = 0; i < 2; i++)
-    {
-        auto waitfor = chrono::seconds(1);
+    Rubiks cube;
+    auto solver = Solver::Create(Solver::L123);
 
-        crawler.turn(false);
-        this_thread::sleep_for(waitfor);
-        crawler.rotz(true);
-        this_thread::sleep_for(waitfor);
-        crawler.flip();
-        this_thread::sleep_for(waitfor);
-        crawler.turn(true);
-        this_thread::sleep_for(waitfor);
-        crawler.rotz(false);
-        this_thread::sleep_for(waitfor);
-        crawler.flip();
-        this_thread::sleep_for(waitfor);
+    crawler.tell("scrambling!");
+
+    if (!interrupted())
+    {
+        auto problem = solver->scramble(cube);
+        run(problem, crawler, interrupted);
+    }
+
+    crawler.tell("solving!");
+
+    if (!interrupted())
+    {
+        auto solution = solver->solve(cube);
+        run(solution, crawler, interrupted);
     }
 
     crawler.tell("cube solved!");
@@ -78,25 +105,32 @@ int run_brick()
 
 int main(int argc, char *argv[])
 {
+    int retcode = 0;
+
+    signal(SIGINT, sigint_graciously);
+
     try
     {
         if (argc == 2 && strcmp(argv[1], "pc") == 0)
         {
-            return run_pc();
+            retcode = run_pc();
         }
         else if (argc == 2 && strcmp(argv[1], "brick") == 0)
         {
-            return run_brick();
+            retcode = run_brick();
         }
         else
         {
             cout << "USAGE: cube-crawler [pc|brick]\n";
-            return 0;
         }
     }
     catch (exception const &e)
     {
         cerr << e.what() << '\n';
-        return -1;
+        retcode = -1;
     }
+
+    signal(SIGINT, nullptr);
+
+    return retcode;
 }

@@ -76,10 +76,10 @@ class Rubiks
         Commands:
     */
 
-    // Turn a single face 1, 2 or 3 times CW (n>1) or CCW (n<1)
+    // Turn a single face 1, 2 or 3 times CW (n>0) or CCW (n<0)
     void turn(Face face, int n);
 
-    // Rotate the whole cube 1, 2 or 3 times CW (n>1) or CCW (n<1)
+    // Rotate the whole cube 1, 2 or 3 times CW (n>0) or CCW (n<0)
     void rotate(Face axis, int n);
 
   private:
